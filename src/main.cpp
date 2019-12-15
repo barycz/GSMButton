@@ -1,20 +1,16 @@
 // Author: Tomas Barak <baryhoemail@gmail.com>
 
+#include <App.h>
 #include <Arduino.h>
-#include <Modem.h>
 
-Modem modem(5, 4);
+App g_App;
 
-void setup() {
-	Serial.begin(115200);
-	Serial.println("Init");
-
-	modem.Begin();
+void setup()
+{
+	g_App.Setup();
 }
 
 void loop()
 {
-	Serial.println("update");
-	modem.Ping();
-	delay(300);
+	g_App.Update();
 }
