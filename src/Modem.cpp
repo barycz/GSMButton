@@ -19,6 +19,20 @@ void Modem::Send(const String& line)
 	m_Comm.println(line);
 }
 
+void Modem::Send(const String& tk1, const String& tk2, const String& tk3)
+{
+#if MODEM_DEBUG
+	Serial.print("<- ");
+	Serial.print(tk1);
+	Serial.print(tk2);
+	Serial.println(tk3);
+#endif
+
+	m_Comm.print(tk1);
+	m_Comm.print(tk2);
+	m_Comm.println(tk3);
+}
+
 bool Modem::WaitFor(const String& resp, unsigned long timeoutMs)
 {
 	const auto startTime = millis();
@@ -85,4 +99,16 @@ void Modem::SendConfiguration()
 	// disable echo
 	Send("ATE0");
 	WaitFor("OK");
+}
+
+bool Modem::Dial(const String& number)
+{
+	Send("ATD+ ", number, ";");
+	return WaitFor("OK");
+}
+
+bool Modem::Hangup()
+{
+	Send("ATH");
+	return WaitFor("OK");
 }
