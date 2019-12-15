@@ -71,18 +71,61 @@ bool Modem::WaitFor(const String& resp, unsigned long timeoutMs)
 	return false;
 }
 
-void Modem::DiscardResponse()
+bool Modem::WaitFor(String& ioResp, const char wildcard, unsigned long timeoutMs)
 {
-	while(m_Comm.available())
+	const auto startTime = millis();
+	unsigned pos = 0;
+	do
 	{
-		m_Comm.read();
-	}
+		if (pos == ioResp.length())
+		{
+#if MODEM_DEBUG
+			Serial.print("-> ");
+			Serial.println(ioResp);
+#endif
+			return true;
+		}
+
+		int ch = m_Comm.read();
+		if(ch == -1)
+		{
+			continue;
+		}
+
+		if(ch == ioResp[pos] || ioResp[pos] == wildcard)
+		{
+			ioResp[pos] = ch;
+			++pos;
+		}
+		else
+		{
+			pos = 0;
+		}
+
+	} while(millis() - startTime < timeoutMs);
+
+#if MODEM_DEBUG
+	Serial.println("-> TIMEOUT");
+#endif
+	return false;
 }
 
 void Modem::Begin(long baudRate)
 {
 	m_Comm.begin(baudRate);
 	SendConfiguration();
+}
+
+bool Modem::IsRegistered()
+{
+	Send("AT+CREG?");
+	String resp = "+CREG: *,*";
+	if(WaitFor(resp) == false)
+	{
+		return false;
+	}
+
+	return resp.endsWith("1") || resp.endsWith("5");
 }
 
 bool Modem::Ping()
@@ -103,6 +146,11 @@ void Modem::SendConfiguration()
 
 bool Modem::Dial(const String& number)
 {
+	if (IsRegistered() == false)
+	{
+		return false;
+	}
+
 	Send("ATD+ ", number, ";");
 	return WaitFor("OK");
 }

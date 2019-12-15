@@ -13,9 +13,17 @@ public:
 	void Update();
 
 private:
-	bool Call(const String& number, unsigned long duration);
+	enum class State
+	{
+		Idle,
+		InCall,
+	};
+
+	void UpdateIdle();
+	void UpdateInCall();
 
 	unsigned long m_LastCallRequest;
 	unsigned long m_LastCall;
+	State m_State;
 	Modem m_Modem;
 };
