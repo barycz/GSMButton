@@ -3,6 +3,7 @@
 #pragma once
 
 #include <Modem.h>
+#include <DebugLed.h>
 
 class App
 {
@@ -26,4 +27,5 @@ private:
 	unsigned long m_LastCall;
 	State m_State;
 	Modem m_Modem;
+	DebugLed m_DebugLed;
 };

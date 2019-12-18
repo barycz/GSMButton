@@ -9,17 +9,18 @@ App::App()
 	, m_LastCall(0)
 	, m_State(State::Idle)
 	, m_Modem(pins::ModemRx, pins::ModemTx)
+	, m_DebugLed(pins::LedExternal)
 {
 
 }
 
 void App::Setup()
 {
-	pinMode(pins::LedInternal, OUTPUT);
-	pinMode(pins::LedExternal, OUTPUT);
+	m_DebugLed.Init();
+
 	pinMode(pins::Button, INPUT_PULLUP);
 
-	digitalWrite(pins::LedExternal, pins::state::LedExternalOff);
+	pinMode(pins::LedInternal, OUTPUT);
 	digitalWrite(pins::LedInternal, pins::state::LedInternalOff);
 
 	Serial.begin(115200);
@@ -36,10 +37,12 @@ void App::UpdateIdle()
 		{
 			Serial.println("calling");
 			m_State = State::InCall;
+			m_DebugLed.SetMode(DebugLed::Mode::Fast);
 		}
 		else
 		{
 			Serial.println("call failed");
+			m_DebugLed.SetMode(DebugLed::Mode::Slow);
 			delay(100);
 		}
 	}
@@ -51,12 +54,14 @@ void App::UpdateInCall()
 	{
 		m_Modem.Hangup();
 		m_State = State::Idle;
+		m_DebugLed.SetMode(DebugLed::Mode::Off);
 		m_LastCall = m_LastCallRequest;
 	}
 }
 
 void App::Update()
 {
+	m_DebugLed.Update();
 	if (digitalRead(pins::Button) == pins::state::ButtonPressed)
 	{
 		m_LastCallRequest = millis();

@@ -22,8 +22,8 @@ namespace pins
 	namespace state
 	{
 		static const uint8_t ButtonPressed = LOW;
-		static const uint8_t LedExternalOn = LOW;
-		static const uint8_t LedExternalOff = HIGH;
+		static const uint8_t LedOn = LOW;
+		static const uint8_t LedOff = HIGH;
 		static const uint8_t LedInternalOn = HIGH;
 		static const uint8_t LedInternalOff = LOW;
 	}
